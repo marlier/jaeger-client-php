@@ -1,7 +1,8 @@
 <?php
 
+namespace Jaeger;
+
 use Thrift\Exception\TTransportException;
-use Jaeger\TUDPTransport;
 use PHPUnit\Framework\TestCase;
 
 class TUDPTransportTest extends TestCase

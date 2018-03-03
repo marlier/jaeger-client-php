@@ -1,10 +1,11 @@
 <?php
 
+namespace Jaeger;
+
 use Jaeger\Reporter\InMemoryReporter;
 use Jaeger\Reporter\LoggingReporter;
 use Jaeger\Reporter\NullReporter;
-use Jaeger\Span;
-use \PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 class ReporterTest extends TestCase

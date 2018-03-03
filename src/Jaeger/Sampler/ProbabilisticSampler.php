@@ -3,6 +3,7 @@
 namespace Jaeger\Sampler;
 
 use Exception;
+
 use const Jaeger\SAMPLER_PARAM_TAG_KEY;
 use const Jaeger\SAMPLER_TYPE_PROBABILISTIC;
 use const Jaeger\SAMPLER_TYPE_TAG_KEY;
@@ -15,10 +16,18 @@ class ProbabilisticSampler implements SamplerInterface
 {
     /** @var float */
     private $rate;
+
+    /** @var array */
     private $tags = [];
+
+    /** @var float */
     private $boundary;
 
-    public function __construct(float $rate)
+    /**
+     * @param float $rate
+     * @throws Exception
+     */
+    public function __construct($rate)
     {
         $this->tags = [
             SAMPLER_TYPE_TAG_KEY => SAMPLER_TYPE_PROBABILISTIC,
@@ -33,16 +42,27 @@ class ProbabilisticSampler implements SamplerInterface
         $this->boundary = $rate * PHP_INT_MAX;
     }
 
+    /**
+     * @param $traceId
+     * @param string $operation
+     * @return array|mixed
+     */
     public function isSampled($traceId, $operation = '')
     {
         return [($traceId < $this->boundary), $this->tags];
     }
 
+    /**
+     * @return void
+     */
     public function close()
     {
     }
 
-    public function __toString(): string
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return "ProbabilisticSampler($this->rate)";
     }

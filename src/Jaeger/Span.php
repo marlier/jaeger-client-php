@@ -5,13 +5,14 @@ namespace Jaeger;
 use Jaeger\ThriftGen\AnnotationType;
 use Jaeger\ThriftGen\BinaryAnnotation;
 use OpenTracing;
-use const OpenTracing\Ext\Tags\COMPONENT;
-use const OpenTracing\Ext\Tags\PEER_HOST_IPV4;
-use const OpenTracing\Ext\Tags\PEER_PORT;
-use const OpenTracing\Ext\Tags\PEER_SERVICE;
-use const OpenTracing\Ext\Tags\SPAN_KIND;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_CLIENT;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_SERVER;
+
+use const OpenTracing\Tags\COMPONENT;
+use const OpenTracing\Tags\PEER_HOST_IPV4;
+use const OpenTracing\Tags\PEER_PORT;
+use const OpenTracing\Tags\PEER_SERVICE;
+use const OpenTracing\Tags\SPAN_KIND;
+use const OpenTracing\Tags\SPAN_KIND_RPC_CLIENT;
+use const OpenTracing\Tags\SPAN_KIND_RPC_SERVER;
 
 class Span implements OpenTracing\Span
 {
@@ -45,12 +46,20 @@ class Span implements OpenTracing\Span
     /** @var bool */
     private $debug = false;
 
+    /**
+     * Span constructor.
+     * @param SpanContext $context
+     * @param Tracer $tracer
+     * @param string $operationName
+     * @param array $tags
+     * @param float|null $startTime
+     */
     public function __construct(
         SpanContext $context,
         Tracer $tracer,
-        string $operationName,
-        array $tags = [],
-        float $startTime = null
+        $operationName,
+        $tags = [],
+        $startTime = null
     )
     {
         $this->context = $context;
@@ -70,34 +79,49 @@ class Span implements OpenTracing\Span
         }
     }
 
-    public function getTracer(): Tracer
+    /**
+     * @return Tracer
+     */
+    public function getTracer()
     {
         return $this->tracer;
     }
 
-    public function isDebug(): bool
+    /**
+     * @return bool
+     */
+    public function isDebug()
     {
         return $this->debug;
     }
 
-    /** @return float|null */
+    /**
+     * @return float|null
+     */
     public function getStartTime()
     {
         return $this->startTime;
     }
 
-    /** @return float|null */
+    /**
+     * @return float|null
+     */
     public function getEndTime()
     {
         return $this->endTime;
     }
 
-    public function getOperationName(): string
+    /**
+     * @return string
+     */
+    public function getOperationName()
     {
         return $this->operationName;
     }
 
-    /** @return mixed */
+    /**
+     * @return mixed
+     */
     public function getComponent()
     {
         // TODO
@@ -111,7 +135,7 @@ class Span implements OpenTracing\Span
      *
      * @return OpenTracing\SpanContext
      */
-    public function getContext(): SpanContext
+    public function getContext()
     {
         return $this->context;
     }
@@ -143,7 +167,10 @@ class Span implements OpenTracing\Span
         $this->tracer->reportSpan($this);
     }
 
-    public function isSampled(): bool
+    /**
+     * @return bool
+     */
+    public function isSampled()
     {
         return $this->getContext()->getFlags() & SAMPLED_FLAG == SAMPLED_FLAG;
     }
@@ -287,7 +314,10 @@ class Span implements OpenTracing\Span
         // TODO: Implement getBaggageItem() method.
     }
 
-    public function __toString(): string
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return sprintf(
             'Span(operationName=%s startTime=%s endTime=%s)',
@@ -297,17 +327,28 @@ class Span implements OpenTracing\Span
         );
     }
 
+    /**
+     * @return array|BinaryAnnotation[]
+     */
     public function getTags()
     {
         return $this->tags;
     }
 
-    private function timestampMicro(): int
+    /**
+     * @return int
+     */
+    private function timestampMicro()
     {
         return round(microtime(true) * 1000000);
     }
 
-    private function makeStringTag(string $key, string $value): BinaryAnnotation
+    /**
+     * @param string $key
+     * @param string $value
+     * @return BinaryAnnotation
+     */
+    private function makeStringTag($key, $value)
     {
         if (strlen($value) > 256) {
             $value = substr($value, 0, 256);

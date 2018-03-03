@@ -21,18 +21,21 @@ class Config
     /** @var string */
     private $serviceName;
 
-    private $errorReporter;
-
     private $initialized = false;
 
     /** @var LoggerInterface */
     private $logger;
 
+    /**
+     * @param $config
+     * @param string|null $serviceName
+     * @param LoggerInterface|null $logger
+     * @throws Exception
+     */
     public function __construct(
         $config,
-        string $serviceName = null,
+        $serviceName = null,
         LoggerInterface $logger = null
-//        $metricsFactory = null
     )
     {
         $this->config = $config;
@@ -50,7 +53,10 @@ class Config
         $this->logger = $logger ?? new Logger('jaeger_tracing');
     }
 
-    /** @return Tracer|null */
+    /**
+     * @return Tracer|null
+     * @throws Exception
+     */
     public function initializeTracer()
     {
         if ($this->initialized) {
@@ -83,7 +89,12 @@ class Config
         return $tracer;
     }
 
-    public function createTracer(ReporterInterface $reporter, SamplerInterface $sampler): Tracer
+    /**
+     * @param ReporterInterface $reporter
+     * @param SamplerInterface $sampler
+     * @return Tracer
+     */
+    public function createTracer(ReporterInterface $reporter, SamplerInterface $sampler)
     {
         return new Tracer(
             $this->serviceName,
@@ -94,6 +105,9 @@ class Config
         );
     }
 
+    /**
+     * @param $tracer
+     */
     private function initializeGlobalTracer($tracer)
     {
         GlobalTracer::set($tracer);
@@ -106,7 +120,10 @@ class Config
         );
     }
 
-    private function getLogging(): bool
+    /**
+     * @return bool
+     */
+    private function getLogging()
     {
         return (bool)$this->config['logging'] ?? false;
     }
@@ -126,7 +143,7 @@ class Config
         } elseif ($samplerType === SAMPLER_TYPE_CONST) {
             return new ConstSampler($samplerParam ?? false);
         } elseif ($samplerType === SAMPLER_TYPE_PROBABILISTIC) {
-            return new ProbabilisticSampler((float) $samplerParam);
+            return new ProbabilisticSampler((float)$samplerParam);
         }
 //        } elseif (in_array($samplerType, [SAMPLER_TYPE_RATE_LIMITING, 'rate_limiting'])) {
 //            return RateLimitingSampler(max_traces_per_second=float(sampler_param))
@@ -135,40 +152,49 @@ class Config
         throw new Exception('Unknown sampler type ' . $samplerType);
     }
 
-    private function getBatchSize(): int
+    /**
+     * @return int
+     */
+    private function getBatchSize()
     {
         if (isset($this->config['reporter_batch_size'])) {
-            return (int) $this->config['reporter_batch_size'];
+            return (int)$this->config['reporter_batch_size'];
         }
         return 10;
     }
 
-    private function getLocalAgentSender(): LocalAgentSender
+    /**
+     * @return LocalAgentSender
+     */
+    private function getLocalAgentSender()
     {
         $this->logger->info('Initializing Jaeger Tracer with UDP reporter');
         return new LocalAgentSender(
             $this->getLocalAgentReportingHost(),
-//            $this->getLocalAgentSamplingPort(),
             $this->getLocalAgentReportingPort()
         );
     }
 
+    /**
+     * @return null
+     */
     private function getLocalAgentGroup()
     {
         return $this->config['local_agent'] ?? null;
     }
 
-    private function getLocalAgentReportingHost(): string
+    /**
+     * @return string
+     */
+    private function getLocalAgentReportingHost()
     {
         return $this->getLocalAgentGroup()['reporting_host'] ?? DEFAULT_REPORTING_HOST;
     }
 
-    private function getLocalAgentSamplingPort(): int
-    {
-        return $this->getLocalAgentGroup()['sampling_port'] ?? DEFAULT_SAMPLING_PORT;
-    }
-
-    private function getLocalAgentReportingPort(): int
+    /**
+     * @return int
+     */
+    private function getLocalAgentReportingPort()
     {
         return $this->getLocalAgentGroup()['reporting_port'] ?? DEFAULT_REPORTING_PORT;
     }

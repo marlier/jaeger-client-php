@@ -1,5 +1,7 @@
 <?php
 
+namespace Jaeger;
+
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
 use PHPUnit\Framework\TestCase;

@@ -8,9 +8,17 @@ use Thrift\Transport\TTransport;
 class TUDPTransport extends TTransport
 {
     private $socket;
+
+    /** @var string */
     private $host;
+
+    /** @var int */
     private $port;
 
+    /**
+     * @param string $host
+     * @param int $port
+     */
     public function __construct($host, $port)
     {
         $this->host = $host;

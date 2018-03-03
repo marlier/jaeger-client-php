@@ -17,7 +17,7 @@
 
     <testsuites>
         <testsuite name="Jaegar Test Suite">
-            <directory>tests</directory>
+            <directory>tests/Jaeger</directory>
         </testsuite>
     </testsuites>
 </phpunit>

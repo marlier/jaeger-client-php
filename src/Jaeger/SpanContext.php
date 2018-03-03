@@ -14,6 +14,14 @@ class SpanContext implements OpenTracing\SpanContext
     private $baggage;
     private $debugId;
 
+    /**
+     * SpanContext constructor.
+     * @param $traceId
+     * @param $spanId
+     * @param $parentId
+     * @param $flags
+     * @param null $baggage
+     */
     public function __construct($traceId, $spanId, $parentId, $flags, $baggage = null)
     {
         $this->traceId = $traceId;
@@ -67,40 +75,58 @@ class SpanContext implements OpenTracing\SpanContext
         );
     }
 
-    /** @return int */
+    /**
+     * @return int
+     */
     public function getTraceId()
     {
         return $this->traceId;
     }
 
-    /** @return int|null */
+    /**
+     * @return int|null
+     */
     public function getParentId()
     {
         return $this->parentId;
     }
 
-    /** @return int */
+    /**
+     * @return int
+     */
     public function getSpanId()
     {
         return $this->spanId;
     }
 
+    /**
+     * @return mixed
+     */
     public function getFlags()
     {
         return $this->flags;
     }
 
+    /**
+     * @return array|null
+     */
     public function getBaggage()
     {
         return $this->baggage;
     }
 
+    /**
+     * @return null
+     */
     public function getDebugId()
     {
         return $this->debugId;
     }
 
-    public function isDebugIdContainerOnly(): bool
+    /**
+     * @return bool
+     */
+    public function isDebugIdContainerOnly()
     {
         return ($this->traceId === null) && ($this->debugId !== null);
     }

@@ -2,12 +2,15 @@
 
 namespace Jaeger\Codec;
 
-use Jaeger\SpanContext;
+use OpenTracing\SpanContext;
 
 interface CodecInterface
 {
     public function inject(SpanContext $spanContext, $carrier);
 
-    /** @return SpanContext|null */
+    /**
+     * @param $carrier
+     * @return mixed
+     */
     public function extract($carrier);
 }

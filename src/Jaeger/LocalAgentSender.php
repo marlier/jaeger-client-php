@@ -9,7 +9,6 @@ use Jaeger\ThriftGen\Endpoint;
 use Jaeger\ThriftGen\Span;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TBufferedTransport;
-use Thrift\Transport\TSocket;
 
 class LocalAgentSender
 {
@@ -28,7 +27,12 @@ class LocalAgentSender
     /** @var AgentClient */
     private $client;
 
-    public function __construct(string $host, int $port, int $batchSize = 10)
+    /**
+     * @param string $host
+     * @param int $port
+     * @param int $batchSize
+     */
+    public function __construct($host, $port, $batchSize = 10)
     {
         $this->host = $host;
         $this->port = $port;
@@ -59,8 +63,10 @@ class LocalAgentSender
         return 0;
     }
 
-    /** @return int the number of flushed spans */
-    public function flush(): int
+    /**
+     * @return int the number of flushed spans
+     */
+    public function flush()
     {
         $count = count($this->spans);
         if ($count === 0) {
@@ -75,10 +81,16 @@ class LocalAgentSender
         return $count;
     }
 
+    /**
+     * @return void;
+     */
     public function close()
     {
     }
 
+    /**
+     * @param array $spans
+     */
     private function send(array $spans)
     {
         $this->client->emitZipkinBatch($spans);
@@ -88,7 +100,7 @@ class LocalAgentSender
      * @param \Jaeger\Span[] $spans
      * @return \Jaeger\ThriftGen\Span[]
      */
-    private function makeZipkinBatch(array $spans): array
+    private function makeZipkinBatch(array $spans)
     {
         /** @var \Jaeger\ThriftGen\Span[] */
         $zipkinSpans = [];
@@ -129,7 +141,11 @@ class LocalAgentSender
         return $zipkinSpans;
     }
 
-    private function addZipkinAnnotations(\Jaeger\Span $span, $endpoint)
+    /**
+     * @param Span $span
+     * @param $endpoint
+     */
+    private function addZipkinAnnotations(Span $span, $endpoint)
     {
         $tag = $this->makeLocalComponentTag(
             $span->getComponent() ?? $span->getTracer()->getServiceName(),
@@ -139,7 +155,12 @@ class LocalAgentSender
         $span->tags[] = $tag;
     }
 
-    private function makeLocalComponentTag(string $componentName, $endpoint): BinaryAnnotation
+    /**
+     * @param string $componentName
+     * @param $endpoint
+     * @return BinaryAnnotation
+     */
+    private function makeLocalComponentTag($componentName, $endpoint)
     {
         return new BinaryAnnotation([
             'key' => "lc",
@@ -149,7 +170,13 @@ class LocalAgentSender
         ]);
     }
 
-    private function makeEndpoint(string $ipv4, int $port, string $serviceName): Endpoint
+    /**
+     * @param string $ipv4
+     * @param int $port
+     * @param string $serviceName
+     * @return Endpoint
+     */
+    private function makeEndpoint($ipv4, $port, $serviceName)
     {
         $ipv4 = $this->ipv4ToInt($ipv4);
 
@@ -160,7 +187,11 @@ class LocalAgentSender
         ]);
     }
 
-    private function ipv4ToInt($ipv4): int
+    /**
+     * @param $ipv4
+     * @return int
+     */
+    private function ipv4ToInt($ipv4)
     {
         if ($ipv4 == 'localhost') {
             $ipv4 = '127.0.0.1';

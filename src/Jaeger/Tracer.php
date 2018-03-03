@@ -9,18 +9,16 @@ use Jaeger\Codec\ZipkinCodec;
 use Jaeger\Reporter\ReporterInterface;
 use Jaeger\Sampler\SamplerInterface;
 use Monolog\Logger;
-use OpenTracing\Exceptions\InvalidSpanOption;
 use OpenTracing\Exceptions\SpanContextNotFound;
 use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing;
-use const OpenTracing\Ext\Tags\SPAN_KIND;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_SERVER;
+use Psr\Log\LoggerInterface;
+
+use const OpenTracing\Tags\SPAN_KIND;
+use const OpenTracing\Tags\SPAN_KIND_RPC_SERVER;
 use const OpenTracing\Formats\BINARY;
 use const OpenTracing\Formats\HTTP_HEADERS;
 use const OpenTracing\Formats\TEXT_MAP;
-use OpenTracing\Propagation\Reader;
-use OpenTracing\Propagation\Writer;
-use Psr\Log\LoggerInterface;
 
 class Tracer implements OpenTracing\Tracer
 {
@@ -33,11 +31,8 @@ class Tracer implements OpenTracing\Tracer
     /** @var SamplerInterface */
     private $sampler;
 
+    /** @var string */
     private $ipAddress;
-
-    private $metricsFactory;
-
-    private $metrics;
 
     /** @var string */
     private $debugIdHeader;
@@ -51,18 +46,33 @@ class Tracer implements OpenTracing\Tracer
     /** @var bool */
     private $oneSpanPerRpc;
 
+    /** @var array */
     private $tags;
 
+    /** @var \OpenTracing\ScopeManager */
+    private $scopeManager;
+
+    /**
+     * @param string $serviceName
+     * @param ReporterInterface $reporter
+     * @param SamplerInterface $sampler
+     * @param bool $oneSpanPerRpc
+     * @param LoggerInterface|null $logger
+     * @param string $traceIdHeader
+     * @param string $baggageHeaderPrefix
+     * @param string $debugIdHeader
+     * @param array|null $tags
+     */
     public function __construct(
-        string $serviceName,
+        $serviceName,
         ReporterInterface $reporter,
         SamplerInterface $sampler,
-        bool $oneSpanPerRpc = True,
+        $oneSpanPerRpc = True,
         LoggerInterface $logger = null,
-        string $traceIdHeader = TRACE_ID_HEADER,
-        string $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
-        string $debugIdHeader = DEBUG_ID_HEADER_KEY,
-        array $tags = null
+        $traceIdHeader = TRACE_ID_HEADER,
+        $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
+        $debugIdHeader = DEBUG_ID_HEADER_KEY,
+        $tags = null
     )
     {
         $this->serviceName = $serviceName;
@@ -107,18 +117,28 @@ class Tracer implements OpenTracing\Tracer
         }
     }
 
-    public function setSampler(SamplerInterface $sampler)
+    /**
+     * @param SamplerInterface $sampler
+     * @return $this
+     */
+    public function setSampler($sampler)
     {
         $this->sampler = $sampler;
 
         return $this;
     }
 
-    public function getServiceName(): string
+    /**
+     * @return string
+     */
+    public function getServiceName()
     {
         return $this->serviceName;
     }
 
+    /**
+     * @return string
+     */
     public function getIpAddress()
     {
         return $this->ipAddress;
@@ -126,9 +146,9 @@ class Tracer implements OpenTracing\Tracer
 
     /**
      * @param string $operationName
-     * @param array|OpenTracing\SpanOptions $options
-     * @return Span
-     * @throws InvalidSpanOption for invalid option
+     * @param array $options
+     * @return Span|OpenTracing\Span
+     * @throws \Exception
      */
     public function startSpan($operationName, $options = [])
     {
@@ -144,8 +164,8 @@ class Tracer implements OpenTracing\Tracer
 //        }
 
         if ($parent instanceof Span) {
-            /** @var SpanContext $parent */
-           $parent = $parent->getContext();
+            /** @var Span */
+            $parent = $parent->getContext();
         }
 
         $rpcServer = ($tags !== null) &&
@@ -212,10 +232,9 @@ class Tracer implements OpenTracing\Tracer
 
     /**
      * @param OpenTracing\SpanContext $spanContext
-     * @param int $format
-     * @param Writer $carrier
-     * @throws UnsupportedFormat when the format is not recognized by the tracer
-     * implementation
+     * @param string $format
+     * @param $carrier
+     * @return mixed
      */
     public function inject(OpenTracing\SpanContext $spanContext, $format, &$carrier)
     {
@@ -228,12 +247,9 @@ class Tracer implements OpenTracing\Tracer
     }
 
     /**
-     * @param int $format
-     * @param Reader $carrier
-     * @return OpenTracing\SpanContext
-     * @throws SpanContextNotFound when a context could not be extracted from Reader
-     * @throws UnsupportedFormat when the format is not recognized by the tracer
-     * implementation
+     * @param string $format
+     * @param $carrier
+     * @return SpanContext|null|OpenTracing\SpanContext
      */
     public function extract($format, $carrier)
     {
@@ -250,35 +266,61 @@ class Tracer implements OpenTracing\Tracer
         return $context;
     }
 
-    /**
-     * Allow tracer to send span data to be instrumented.
-     *
-     * This method might not be needed depending on the tracing implementation
-     * but one should make sure this method is called after the request is finished.
-     * As an implementor, a good idea would be to use an asynchronous message bus
-     * or use the call to fastcgi_finish_request in order to not to delay the end
-     * of the request to the client.
-     *
-     * @see fastcgi_finish_request()
-     * @see https://www.google.com/search?q=message+bus+php
-     */
     public function flush()
     {
         $this->reporter->close();
     }
 
-    public function reportSpan(Span $span)
+    /**
+     * @param Span $span
+     */
+    public function reportSpan($span)
     {
         $this->reporter->reportSpan($span);
     }
 
-    public function __toString(): string
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return 'Tracer';
     }
 
-    private function randomId(): int
+    /**
+     * @return int
+     * @throws \Exception
+     */
+    private function randomId()
     {
         return random_int(0, PHP_INT_MAX);
+    }
+
+    /**
+     * @return OpenTracing\ScopeManager
+     */
+    public function getScopeManager()
+    {
+        return $this->scopeManager;
+    }
+
+    /**
+     * @return null|OpenTracing\Span
+     */
+    public function getActiveSpan()
+    {
+        $scope = $this->scopeManager->getActiveScope();
+        return $scope == null ? null : $scope->getSpan();
+    }
+
+    /**
+     * @param string $operationName
+     * @param array $options
+     * @return OpenTracing\Scope|OpenTracing\Span
+     * @throws \Exception
+     */
+    public function startActiveSpan($operationName, $options = [])
+    {
+        return $this->scopeManager->activate($this->startSpan($operationName, $options));
     }
 }
