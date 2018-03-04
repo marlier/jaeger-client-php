@@ -2,11 +2,14 @@
 
 namespace Jaeger;
 
+use InvalidArgumentException;
 use Jaeger\Codec\BinaryCodec;
 use Jaeger\Codec\CodecInterface;
 use Jaeger\Codec\TextCodec;
 use Jaeger\Codec\ZipkinCodec;
+use Jaeger\Reporter\InMemoryReporter;
 use Jaeger\Reporter\ReporterInterface;
+use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\SamplerInterface;
 use Monolog\Logger;
 use OpenTracing\Exceptions\SpanContextNotFound;
@@ -65,8 +68,8 @@ class Tracer implements OpenTracing\Tracer
      */
     public function __construct(
         $serviceName,
-        ReporterInterface $reporter,
-        SamplerInterface $sampler,
+        ReporterInterface $reporter = null,
+        SamplerInterface $sampler = null,
         $oneSpanPerRpc = True,
         LoggerInterface $logger = null,
         $traceIdHeader = TRACE_ID_HEADER,
@@ -75,9 +78,20 @@ class Tracer implements OpenTracing\Tracer
         $tags = null
     )
     {
-        $this->serviceName = $serviceName;
-        $this->reporter = $reporter;
-        $this->sampler = $sampler;
+        $this->serviceName = $this->checkValidServiceName($serviceName);
+
+        if ($reporter === null) {
+            $this->reporter = new InMemoryReporter();
+        } else {
+            $this->reporter = $reporter;
+        }
+
+        if ($sampler === null) {
+            $this->sampler = new ConstSampler();
+        } else {
+            $this->sampler = $sampler;
+        }
+
         $this->oneSpanPerRpc = $oneSpanPerRpc;
         $this->logger = $logger ?? new Logger('jaeger_tracing');
 
@@ -148,7 +162,6 @@ class Tracer implements OpenTracing\Tracer
      * @param string $operationName
      * @param array $options
      * @return Span|OpenTracing\Span
-     * @throws \Exception
      */
     public function startSpan($operationName, $options = [])
     {
@@ -289,11 +302,10 @@ class Tracer implements OpenTracing\Tracer
 
     /**
      * @return int
-     * @throws \Exception
      */
     private function randomId()
     {
-        return random_int(0, PHP_INT_MAX);
+        return rand(0, PHP_INT_MAX);
     }
 
     /**
@@ -322,5 +334,25 @@ class Tracer implements OpenTracing\Tracer
     public function startActiveSpan($operationName, $options = [])
     {
         return $this->scopeManager->activate($this->startSpan($operationName, $options));
+    }
+
+    /**
+     * @return ReporterInterface
+     */
+    public function getReporter()
+    {
+        return $this->reporter;
+    }
+
+    /**
+     * @param string $serviceName
+     * @return string
+     */
+    private function checkValidServiceName($serviceName)
+    {
+        if ($serviceName == null || strlen(trim($serviceName)) == 0) {
+            throw new InvalidArgumentException("Service name must not be null or empty");
+        }
+        return $serviceName;
     }
 }

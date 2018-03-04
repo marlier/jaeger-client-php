@@ -12,11 +12,19 @@ class CompositeReporter implements ReporterInterface
     /** @var ReporterInterface[] */
     private $reporters;
 
+    /**
+     * CompositeReporter constructor.
+     * @param ReporterInterface[] ...$reporters
+     */
     public function __construct(ReporterInterface ...$reporters)
     {
         $this->reporters = $reporters;
     }
 
+    /**
+     * @param Span $span
+     * @return mixed|void
+     */
     public function reportSpan(Span $span)
     {
         foreach ($this->reporters as $reporter) {
@@ -24,6 +32,9 @@ class CompositeReporter implements ReporterInterface
         }
     }
 
+    /**
+     * @return void
+     */
     public function close()
     {
         foreach ($this->reporters as $reporter) {

@@ -21,10 +21,17 @@ class RemoteReporter implements ReporterInterface
     /** @var int */
     private $batchSize;
 
+    /**
+     * RemoteReporter constructor.
+     * @param $transport
+     * @param string $serviceName
+     * @param int $batchSize
+     * @param LoggerInterface|null $logger
+     */
     public function __construct(
         $transport,
-        string $serviceName,
-        int $batchSize = 10,
+        $serviceName,
+        $batchSize = 10,
         LoggerInterface $logger = null
     )
     {
@@ -34,11 +41,18 @@ class RemoteReporter implements ReporterInterface
         $this->logger = $logger ?? new Logger('jaeger_tracing');
     }
 
+    /**
+     * @param Span $span
+     * @return mixed|void
+     */
     public function reportSpan(Span $span)
     {
         $this->transport->append($span);
     }
 
+    /**
+     * @return void
+     */
     public function close()
     {
         $this->transport->flush();

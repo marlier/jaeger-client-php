@@ -3,9 +3,10 @@
 namespace Jaeger\Codec;
 
 use Exception;
+use OpenTracing\SpanContext;
+
 use const Jaeger\BAGGAGE_HEADER_PREFIX;
 use const Jaeger\DEBUG_ID_HEADER_KEY;
-use Jaeger\SpanContext;
 use const Jaeger\TRACE_ID_HEADER;
 
 class TextCodec implements CodecInterface
@@ -16,11 +17,18 @@ class TextCodec implements CodecInterface
     private $debugIdHeader;
     private $prefixLength;
 
+    /**
+     * TextCodec constructor.
+     * @param bool $urlEncoding
+     * @param string $traceIdHeader
+     * @param string $baggageHeaderPrefix
+     * @param string $debugIdHeader
+     */
     public function __construct(
-        bool $urlEncoding = False,
-        string $traceIdHeader = TRACE_ID_HEADER,
-        string $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
-        string $debugIdHeader = DEBUG_ID_HEADER_KEY
+        $urlEncoding = False,
+        $traceIdHeader = TRACE_ID_HEADER,
+        $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
+        $debugIdHeader = DEBUG_ID_HEADER_KEY
     )
     {
         $this->urlEncoding = $urlEncoding;
@@ -30,6 +38,10 @@ class TextCodec implements CodecInterface
         $this->prefixLength = strlen($baggageHeaderPrefix);
     }
 
+    /**
+     * @param SpanContext $spanContext
+     * @param $carrier
+     */
     public function inject(SpanContext $spanContext, $carrier)
     {
         $carrier[$this->traceIdHeader] = $this->spanContextToString(
@@ -52,7 +64,11 @@ class TextCodec implements CodecInterface
         }
     }
 
-    /** @return SpanContext|null */
+    /**
+     * @param $carrier
+     * @return SpanContext|null
+     * @throws Exception
+     */
     public function extract($carrier)
     {
         $traceId = null;
@@ -103,18 +119,34 @@ class TextCodec implements CodecInterface
         return new SpanContext($traceId, $spanId, $parentId, $flags);
     }
 
+    /**
+     * @param $traceId
+     * @param $spanId
+     * @param $parentId
+     * @param $flags
+     * @return string
+     */
     private function spanContextToString($traceId, $spanId, $parentId, $flags)
     {
         $parentId = $parentId ?? 0;
         return sprintf('%x:%x:%x:%x', $traceId, $spanId, $parentId, $flags);
     }
 
-    private function spanContextFromString($value): array
+    /**
+     * @param $value
+     * @return array
+     */
+    private function spanContextFromString($value)
     {
         return [];
     }
 
-    private function startsWith(string $haystack, string $needle): bool
+    /**
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
+     */
+    private function startsWith($haystack, $needle)
     {
         return substr($haystack, 0, strlen($needle)) == $needle;
     }

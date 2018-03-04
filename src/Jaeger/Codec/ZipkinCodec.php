@@ -2,10 +2,14 @@
 
 namespace Jaeger\Codec;
 
-use Jaeger\SpanContext;
+use OpenTracing\SpanContext;
 
 class ZipkinCodec implements CodecInterface
 {
+    /**
+     * @param SpanContext $spanContext
+     * @param $carrier
+     */
     public function inject(SpanContext $spanContext, $carrier)
     {
         $carrier['trace_id'] = $spanContext->getTraceId();
@@ -14,7 +18,10 @@ class ZipkinCodec implements CodecInterface
         $carrier['traceflags'] = $spanContext->getFlags();
     }
 
-    /** @return SpanContext|null */
+    /**
+     * @param $carrier
+     * @return SpanContext|null
+     */
     public function extract($carrier)
     {
         $traceId = $carrier['trace_id'];
