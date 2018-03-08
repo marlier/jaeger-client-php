@@ -15,6 +15,7 @@ use Monolog\Logger;
 use OpenTracing\Exceptions\SpanContextNotFound;
 use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing;
+use OpenTracing\ScopeManager;
 use Psr\Log\LoggerInterface;
 
 use const OpenTracing\Tags\SPAN_KIND;
@@ -60,6 +61,7 @@ class Tracer implements OpenTracing\Tracer
      * @param ReporterInterface $reporter
      * @param SamplerInterface $sampler
      * @param bool $oneSpanPerRpc
+     * @param ScopeManager|null $scopeManager
      * @param LoggerInterface|null $logger
      * @param string $traceIdHeader
      * @param string $baggageHeaderPrefix
@@ -71,6 +73,7 @@ class Tracer implements OpenTracing\Tracer
         ReporterInterface $reporter = null,
         SamplerInterface $sampler = null,
         $oneSpanPerRpc = True,
+        ScopeManager $scopeManager = null,
         LoggerInterface $logger = null,
         $traceIdHeader = TRACE_ID_HEADER,
         $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
@@ -93,6 +96,13 @@ class Tracer implements OpenTracing\Tracer
         }
 
         $this->oneSpanPerRpc = $oneSpanPerRpc;
+
+        if ($scopeManager === null) {
+            $this->scopeManager = new ThreadLocalScopeManager();
+        } else {
+            $this->scopeManager = $scopeManager;
+        }
+
         $this->logger = $logger ?? new Logger('jaeger_tracing');
 
         $this->ipAddress = getHostByName(getHostName());
@@ -281,6 +291,7 @@ class Tracer implements OpenTracing\Tracer
 
     public function flush()
     {
+        $this->sampler->close();
         $this->reporter->close();
     }
 
@@ -354,5 +365,10 @@ class Tracer implements OpenTracing\Tracer
             throw new InvalidArgumentException("Service name must not be null or empty");
         }
         return $serviceName;
+    }
+
+    public function close()
+    {
+        $this->flush();
     }
 }

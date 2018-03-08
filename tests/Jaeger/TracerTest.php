@@ -6,11 +6,10 @@ use InvalidArgumentException;
 use Jaeger\Metrics\MetricsFactory;
 use Jaeger\Metrics\NoopMetricsFactory;
 use Jaeger\Reporter\InMemoryReporter;
+use Jaeger\Reporter\ReporterInterface;
 use Jaeger\Sampler\ConstSampler;
+use Jaeger\Sampler\SamplerInterface;
 use PHPUnit\Framework\TestCase;
-
-use const OpenTracing\Formats\TEXT_MAP;
-use const OpenTracing\Tags\SPAN_KIND;
 
 final class TracerTest extends TestCase
 {
@@ -109,47 +108,50 @@ final class TracerTest extends TestCase
 //
 //        $this->assertEquals(1, $this->metricsFactory->getCounter("jaeger:baggage_updates", "result=ok"));
 //    }
-//
+
 //    function testTracerImplementsCloseable()
 //    {
-//        $this->assertTrue(Closeable::class . isAssignableFrom(Tracer::class));
+//        $this->assertTrue($this->tracer instanceof Closable);
 //    }
-//
-//    function testClose()
-//    {
-//        $reporter = mock(Reporter::class);
-//        $sampler = mock(Sampler::class);
-//        $this->tracer = new Tracer("bonda", $reporter, $sampler);
-//        $this->tracer->close();
-//        $this->verify(reporter)->close();
-//        $this->verify(sampler)->close();
-//    }
-//
+
+    function testClose()
+    {
+        $reporter = $this->createMock(ReporterInterface::class);
+        $sampler = $this->createMock(SamplerInterface::class);
+
+        $reporter->expects($this->once())->method('close');
+        $sampler->expects($this->once())->method('close');
+
+        $tracer = new Tracer("bonda", $reporter, $sampler);
+        $tracer->close();
+    }
+
 //    function testAsChildOfAcceptNull()
 //    {
-//        $this->tracer = new Tracer("foo", new InMemoryReporter(), new ConstSampler(true));
+//        $tracer = new Tracer("foo", new InMemoryReporter(), new ConstSampler(true));
 //
-//        $span = $this->tracer->buildSpan("foo")->asChildOf(null)->start();
+//        $span = $tracer->startSpan("foo", ['child_of' => null]);
 //        $span->finish();
 //        $this->assertTrue($span->getReferences()->isEmpty());
 //
-//        $span = $this->tracer->buildSpan("foo")->asChildOf(null) . start();
+//        $span = $tracer->startSpan("foo", ['child_of' => null]);
 //        $span->finish();
 //        $this->assertTrue($span->getReferences()->isEmpty());
 //    }
-//
-//    function testActiveSpan()
-//    {
-//        $mockSpan = mock(Span::class);
-//        $this->tracer->scopeManager()->activate($mockSpan, true);
-//        $this->assertEquals($mockSpan, $this->tracer->activeSpan());
-//    }
-//
+
+    function testActiveSpan()
+    {
+        $mockSpan = $this->createMock(Span::class);
+
+        $this->tracer->getScopeManager()->activate($mockSpan);
+        $this->assertEquals($mockSpan, $this->tracer->getActiveSpan());
+    }
+
 //    function testSpanContextNotSampled()
 //    {
 //        $expectedOperation = "fry";
-//        $first = $this->tracer->buildSpan($expectedOperation)->start();
-//        $this->tracer->buildSpan($expectedOperation)->asChildOf($first->context()->withFlags(0)) . start();
+//        $first = $this->tracer->startSpan($expectedOperation);
+//        $this->tracer->startSpan($expectedOperation, ['child_of' => $first->getContext()->withFlags(0)]);
 //
 //        $this->assertEquals(1, $this->metricsFactory->getCounter("jaeger:started_spans", "sampled=y"));
 //        $this->assertEquals(1, $this->metricsFactory->getCounter("jaeger:started_spans", "sampled=n"));

@@ -210,7 +210,7 @@ class Span implements OpenTracing\Span
 
         if ($this->isSampled()) {
             $special = self::SPECIAL_TAGS[$key] ?? null;
-            $handled = False;
+            $handled = false;
 
             if ($special !== null && is_callable($special)) {
                 $handled = $this->$special($value);
