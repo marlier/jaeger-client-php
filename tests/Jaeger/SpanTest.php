@@ -4,6 +4,7 @@ namespace Jaeger;
 
 use Jaeger\Reporter\InMemoryReporter;
 use Jaeger\Sampler\ConstSampler;
+use Jaeger\Utils\Clock;
 use PHPUnit\Framework\TestCase;
 
 final class SpanTest extends TestCase
@@ -25,7 +26,7 @@ final class SpanTest extends TestCase
     {
 //        $this->metricsFactory = new InMemoryMetricsFactory();
         $this->reporter = new InMemoryReporter();
-//        $this->clock = $this->createMock(Clock::class);
+        $this->clock = $this->createMock(Clock::class);
 //        $this->metrics = new Metrics($this->metricsFactory);
         $this->tracer = new Tracer("SamplerTest", $this->reporter, new ConstSampler(true));
 

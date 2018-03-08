@@ -182,7 +182,6 @@ class Span implements OpenTracing\Span
      */
     public function overwriteOperationName($newOperationName)
     {
-        // TODO log warning
         $this->operationName = $newOperationName;
     }
 
