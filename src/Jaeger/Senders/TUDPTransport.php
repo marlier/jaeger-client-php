@@ -1,6 +1,6 @@
 <?php
 
-namespace Jaeger;
+namespace Jaeger\Senders;
 
 use Thrift\Exception\TTransportException;
 use Thrift\Transport\TTransport;

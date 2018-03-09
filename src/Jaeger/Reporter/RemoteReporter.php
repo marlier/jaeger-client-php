@@ -3,13 +3,14 @@
 namespace Jaeger\Reporter;
 
 use Jaeger\LocalAgentSender;
+use Jaeger\Sender;
 use Jaeger\Span;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class RemoteReporter implements ReporterInterface
 {
-    /** @var LocalAgentSender */
+    /** @var Sender */
     private $transport;
 
     /** @var LoggerInterface */
@@ -22,14 +23,13 @@ class RemoteReporter implements ReporterInterface
     private $batchSize;
 
     /**
-     * RemoteReporter constructor.
      * @param $transport
      * @param string $serviceName
      * @param int $batchSize
      * @param LoggerInterface|null $logger
      */
     public function __construct(
-        $transport,
+        Sender $transport,
         $serviceName,
         $batchSize = 10,
         LoggerInterface $logger = null

@@ -2,6 +2,7 @@
 
 namespace Jaeger;
 
+use Jaeger\Senders\TUDPTransport;
 use Thrift\Exception\TTransportException;
 use PHPUnit\Framework\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jaeger;
+namespace Jaeger\Senders;
 
 use Jaeger\ThriftGen\AgentClient;
 use Jaeger\ThriftGen\AnnotationType;
@@ -10,7 +10,7 @@ use Jaeger\ThriftGen\Span;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TBufferedTransport;
 
-class LocalAgentSender
+class LocalAgentSender implements Sender
 {
     /** @var Span[] */
     private $spans = [];
