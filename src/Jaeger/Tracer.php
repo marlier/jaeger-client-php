@@ -12,6 +12,7 @@ use Monolog\Logger;
 use OpenTracing\Exceptions\InvalidSpanOption;
 use OpenTracing\Exceptions\SpanContextNotFound;
 use OpenTracing\Exceptions\UnsupportedFormat;
+use OpenTracing\StartSpanOptions;
 use OpenTracing;
 use const OpenTracing\Tags\SPAN_KIND;
 use const OpenTracing\Tags\SPAN_KIND_RPC_SERVER;
@@ -50,6 +51,9 @@ class Tracer implements OpenTracing\Tracer
     private $oneSpanPerRpc;
 
     private $tags;
+
+    /** @var ScopeManager */
+    private $scopeManager;
 
     public function __construct(
         string $serviceName,
@@ -103,6 +107,8 @@ class Tracer implements OpenTracing\Tracer
         } else {
             $this->tags[JAEGER_HOSTNAME_TAG_KEY] = $hostname;
         }
+
+        $this->scopeManager = new ScopeManager();
     }
 
     public function setSampler(SamplerInterface $sampler)
@@ -122,8 +128,11 @@ class Tracer implements OpenTracing\Tracer
         return $this->ipAddress;
     }
 
+	/**
+	 * @inheritdoc
+	 */
     public function getScopeManager() {
-		// TODO: Implement getScopeManager() method.
+		return $this->scopeManager;
 	}
 
 	public function getActiveSpan() {
@@ -136,12 +145,15 @@ class Tracer implements OpenTracing\Tracer
 
 	/**
      * @param string $operationName
-     * @param array|OpenTracing\SpanOptions $options
+     * @param array|OpenTracing\StartSpanOptions $options
      * @return Span
      * @throws InvalidSpanOption for invalid option
      */
     public function startSpan($operationName, $options = [])
     {
+    	if ( !$options instanceof StartSpanOptions ) {
+    		$options = StartSpanOptions::create( $options );
+		}
         $parent = $options['child_of'] ?? null;
         $tags = $options['tags'] ?? null;
         $startTime = $options['startTime'] ?? null;

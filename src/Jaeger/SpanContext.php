@@ -32,26 +32,24 @@ class SpanContext implements OpenTracing\SpanContext
         return $ctx;
     }
 
+	/**
+	 * @inheritdoc
+	 */
     public function getIterator()
     {
         return new ArrayIterator($this->baggage);
     }
 
     /**
-     * @param string $key
-     * @return string
+     * @inheritdoc
      */
     public function getBaggageItem($key): string
     {
-        return $this->baggage[$key];
+        return in_array( $key, $this->baggage ) ? $this->baggage[$key] : null;
     }
 
     /**
-     * Creates a new SpanContext out of the existing one and the new key:value pair.
-     *
-     * @param string $key
-     * @param string $value
-     * @return \OpenTracing\SpanContext
+     * @inheritdoc
      */
     public function withBaggageItem($key, $value)
     {
@@ -66,6 +64,8 @@ class SpanContext implements OpenTracing\SpanContext
             $baggage
         );
     }
+
+
 
     /** @return int */
     public function getTraceId()
