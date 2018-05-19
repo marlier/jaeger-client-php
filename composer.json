@@ -1,5 +1,5 @@
 {
-    "name": "marlier/jaeger-client-php",
+    "name": "jonahgeorge/jaeger-client-php",
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
