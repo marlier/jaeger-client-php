@@ -13,13 +13,11 @@ use OpenTracing\Exceptions\InvalidSpanOption;
 use OpenTracing\Exceptions\SpanContextNotFound;
 use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing;
-use const OpenTracing\Ext\Tags\SPAN_KIND;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_SERVER;
+use const OpenTracing\Tags\SPAN_KIND;
+use const OpenTracing\Tags\SPAN_KIND_RPC_SERVER;
 use const OpenTracing\Formats\BINARY;
 use const OpenTracing\Formats\HTTP_HEADERS;
 use const OpenTracing\Formats\TEXT_MAP;
-use OpenTracing\Propagation\Reader;
-use OpenTracing\Propagation\Writer;
 use Psr\Log\LoggerInterface;
 
 class Tracer implements OpenTracing\Tracer
@@ -124,7 +122,19 @@ class Tracer implements OpenTracing\Tracer
         return $this->ipAddress;
     }
 
-    /**
+    public function getScopeManager() {
+		// TODO: Implement getScopeManager() method.
+	}
+
+	public function getActiveSpan() {
+		// TODO: Implement getActiveSpan() method.
+	}
+
+	public function startActiveSpan( $operationName, $options = [] ) {
+		// TODO: Implement startActiveSpan() method.
+	}
+
+	/**
      * @param string $operationName
      * @param array|OpenTracing\SpanOptions $options
      * @return Span
@@ -213,7 +223,7 @@ class Tracer implements OpenTracing\Tracer
     /**
      * @param OpenTracing\SpanContext $spanContext
      * @param int $format
-     * @param Writer $carrier
+     * @param array|binary $carrier
      * @throws UnsupportedFormat when the format is not recognized by the tracer
      * implementation
      */
@@ -229,7 +239,7 @@ class Tracer implements OpenTracing\Tracer
 
     /**
      * @param int $format
-     * @param Reader $carrier
+     * @param array|binary $carrier
      * @return OpenTracing\SpanContext
      * @throws SpanContextNotFound when a context could not be extracted from Reader
      * @throws UnsupportedFormat when the format is not recognized by the tracer

@@ -5,13 +5,13 @@ namespace Jaeger;
 use Jaeger\ThriftGen\AnnotationType;
 use Jaeger\ThriftGen\BinaryAnnotation;
 use OpenTracing;
-use const OpenTracing\Ext\Tags\COMPONENT;
-use const OpenTracing\Ext\Tags\PEER_HOST_IPV4;
-use const OpenTracing\Ext\Tags\PEER_PORT;
-use const OpenTracing\Ext\Tags\PEER_SERVICE;
-use const OpenTracing\Ext\Tags\SPAN_KIND;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_CLIENT;
-use const OpenTracing\Ext\Tags\SPAN_KIND_RPC_SERVER;
+use const OpenTracing\Tags\COMPONENT;
+use const OpenTracing\Tags\PEER_HOST_IPV4;
+use const OpenTracing\Tags\PEER_PORT;
+use const OpenTracing\Tags\PEER_SERVICE;
+use const OpenTracing\Tags\SPAN_KIND;
+use const OpenTracing\Tags\SPAN_KIND_RPC_CLIENT;
+use const OpenTracing\Tags\SPAN_KIND_RPC_SERVER;
 
 class Span implements OpenTracing\Span
 {
