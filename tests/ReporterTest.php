@@ -16,6 +16,9 @@ class ReporterTest extends TestCase
         $reporter = new NullReporter();
         $reporter->reportSpan($span);
         $reporter->close();
+
+        // NullReporter doesn't actually preserve spans, so no way to retrieve them
+        $this->assertTrue(true);
     }
 
     public function testInMemoryReporter()
@@ -39,6 +42,10 @@ class ReporterTest extends TestCase
         $logger->method('info')
             ->with($this->stringStartsWith('Reporting span'));
 
+		$logger->expects($this->once())
+			   ->method('info');
+
         $reporter->reportSpan($span);
+
     }
 }
