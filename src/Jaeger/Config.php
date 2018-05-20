@@ -149,7 +149,9 @@ class Config
         return new LocalAgentSender(
             $this->getLocalAgentReportingHost(),
 //            $this->getLocalAgentSamplingPort(),
-            $this->getLocalAgentReportingPort()
+            $this->getLocalAgentReportingPort(),
+			$this->getBatchSize(),
+			$this->logger
         );
     }
 

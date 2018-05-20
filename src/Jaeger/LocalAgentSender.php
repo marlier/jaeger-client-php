@@ -76,11 +76,11 @@ class LocalAgentSender
             return 0;
         }
 
-        $this->logger->debug('Sending ' . $count . ' spans to Jaeger');
+        $this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
         $zipkinSpans = $this->makeZipkinBatch($this->spans);
 
         $this->send($zipkinSpans);
-        $this->logger->debug('Sent spans');
+        $this->logger->debug('LocalAgentSender\flush: Sent spans');
         $this->spans = [];
 
         return $count;
