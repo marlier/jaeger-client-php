@@ -2,12 +2,10 @@
 
 namespace Jaeger;
 
-use Jaeger\Thrift;
 use Jaeger\ThriftGen\AgentClient;
 use Jaeger\ThriftGen\AnnotationType;
 use Jaeger\ThriftGen\BinaryAnnotation;
 use Jaeger\ThriftGen\Endpoint;
-use Jaeger\ThriftGen\Process;
 use Jaeger\ThriftGen\Span;
 use Monolog\Logger;
 use const OpenTracing\Tags\COMPONENT;
@@ -82,9 +80,7 @@ class LocalAgentSender
         $this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
         $process = Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []);
 
-		#$process = new Process(['serviceName'=>$this->spans[0]->getTracer()->getServiceName(), []]);
-
-        $this->logger->debug('localAgentSender\flush: Process thrift object has been created');
+        $this->logger->debug('localAgentSender\flush: Process thrift object has been created: ' . $process->write());
         $jaegerSpans = Thrift::makeJaegerBatch($this->spans, $process);
         #$zipkinSpans = $this->makeZipkinBatch($this->spans);
 		$this->logger->debug('LocalAgentSender\flush: Jaeger batch created');
