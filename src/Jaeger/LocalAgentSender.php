@@ -79,8 +79,11 @@ class LocalAgentSender
         }
 
         $this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
-        $jaegerSpans = Thrift::makeJaegerBatch($this->spans, Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []));
+        $process = Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []);
+
+        $jaegerSpans = Thrift::makeJaegerBatch($this->spans, $process));
         #$zipkinSpans = $this->makeZipkinBatch($this->spans);
+		$this->logger->debug('LocalAgentSender\flush: Jaeger batch created');
 
         $this->send($jaegerSpans);
         $this->logger->debug('LocalAgentSender\flush: Sent spans');
