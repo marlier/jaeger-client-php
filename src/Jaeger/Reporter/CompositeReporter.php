@@ -26,6 +26,7 @@ class CompositeReporter implements ReporterInterface
 
     public function close()
     {
+
         foreach ($this->reporters as $reporter) {
             $reporter->close();
         }

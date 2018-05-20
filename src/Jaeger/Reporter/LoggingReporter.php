@@ -25,5 +25,6 @@ class LoggingReporter implements ReporterInterface
 
     public function close()
     {
+    	$this->logger->debug('Closing the LoggingReporter');
     }
 }
