@@ -45,6 +45,8 @@ $span->finish();
 $tracer->flush();
 ```
 
+## Configuration
+
 ## Roadmap
 
 - [Support Span logging](https://github.com/jonahgeorge/jaeger-client-php/issues/1)

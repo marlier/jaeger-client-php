@@ -10,7 +10,6 @@ use Jaeger\Reporter\ReporterInterface;
 use Jaeger\Sampler\SamplerInterface;
 use Monolog\Logger;
 use OpenTracing\Exceptions\InvalidSpanOption;
-use OpenTracing\Exceptions\SpanContextNotFound;
 use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing\StartSpanOptions;
 use OpenTracing;
@@ -135,12 +134,33 @@ class Tracer implements OpenTracing\Tracer
 		return $this->scopeManager;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function getActiveSpan() {
-		// TODO: Implement getActiveSpan() method.
+		$activeScope = $this->scopeManager->getActive();
+		if ( $activeScope == null ) {
+			return null;
+		}
+		return $activeScope->getSpan();
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function startActiveSpan( $operationName, $options = [] ) {
-		// TODO: Implement startActiveSpan() method.
+		if ( !$options instanceof StartSpanOptions ) {
+			$options = StartSpanOptions::create( $options );
+		}
+
+		if ( $this->hasParentInOptions( $options ) && $this->getActiveSpan() !== null ) {
+			$parent = $this->getActiveSpan()->getContext();
+			$options->withParent( $parent );
+		}
+
+		$span = $this->startSpan( $operationName, $options );
+		$scope = $this->scopeManager->activate( $span, $options->shouldFinishSpanOnClose() );
+		return $scope;
 	}
 
 	/**
@@ -154,9 +174,13 @@ class Tracer implements OpenTracing\Tracer
     	if ( !$options instanceof StartSpanOptions ) {
     		$options = StartSpanOptions::create( $options );
 		}
-        $parent = $options['child_of'] ?? null;
-        $tags = $options['tags'] ?? null;
-        $startTime = $options['startTime'] ?? null;
+
+		$parent = null;
+		if ( !empty( $options->getReferences() ) ) {
+			$parent = $options->getReferences()[0]->getContext();
+		}
+        $tags = $options->getTags();
+        $startTime = $options->getStartTime();
 
 //        if ($options['references']) {
 //            if (is_array($options['references'])) {
@@ -165,15 +189,10 @@ class Tracer implements OpenTracing\Tracer
 //            $parent = $references->referenced_context;
 //        }
 
-        if ($parent instanceof Span) {
-            /** @var SpanContext $parent */
-           $parent = $parent->getContext();
-        }
-
         $rpcServer = ($tags !== null) &&
             ($tags[SPAN_KIND] ?? null) == SPAN_KIND_RPC_SERVER;
 
-        if ($parent === null || $parent->isDebugIdContainerOnly()) {
+        if ($parent === null) {
             $traceId = $this->randomId();
             $spanId = $traceId;
             $parentId = null;
@@ -266,7 +285,7 @@ class Tracer implements OpenTracing\Tracer
 
         $context = $codec->extract($carrier);
         if ($context === null) {
-            throw new SpanContextNotFound('Failed to find span context');
+            throw new UnsupportedFormat('Failed to find span context');
         }
 
         return $context;
@@ -303,4 +322,14 @@ class Tracer implements OpenTracing\Tracer
     {
         return random_int(0, PHP_INT_MAX);
     }
+
+    private function hasParentInOptions( StartSpanOptions $options ) {
+    	$references = $options->getReferences();
+    	foreach ( $references as $reference ) {
+    		if ( $reference->isType( OpenTracing\Reference::CHILD_OF ) ) {
+    			return $reference->getContext();
+			}
+		}
+		return null;
+	}
 }
