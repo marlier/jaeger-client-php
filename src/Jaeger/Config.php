@@ -54,7 +54,7 @@ class Config
     public function initializeTracer()
     {
         if ($this->initialized) {
-            $this->logger->warning('Jaeger tracer already initialized, skipping');
+            $this->logger->warning('Config\initializeTracer: Jaeger tracer already initialized, skipping');
             return null;
         }
 
@@ -64,7 +64,7 @@ class Config
         if ($sampler === null) {
             $sampler = new ConstSampler(true);
         }
-        $this->logger->info('Using sampler ' . $sampler);
+        $this->logger->info('Config\initializeTracer: Using sampler ' . $sampler);
 
         $reporter = new RemoteReporter(
             $channel,
@@ -145,7 +145,7 @@ class Config
 
     private function getLocalAgentSender(): LocalAgentSender
     {
-        $this->logger->info('Initializing Jaeger Tracer with UDP reporter');
+        $this->logger->info('Config\getLocalAgentSender: Initializing Jaeger Tracer with UDP reporter');
         return new LocalAgentSender(
             $this->getLocalAgentReportingHost(),
 //            $this->getLocalAgentSamplingPort(),

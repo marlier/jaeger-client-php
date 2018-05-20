@@ -102,7 +102,7 @@ class Tracer implements OpenTracing\Tracer
 
         $hostname = gethostname();
         if ($hostname === FALSE) {
-            $this->logger->error('Unable to determine host name');
+            $this->logger->error('Tracer\__construct: Unable to determine host name');
         } else {
             $this->tags[JAEGER_HOSTNAME_TAG_KEY] = $hostname;
         }
@@ -138,13 +138,13 @@ class Tracer implements OpenTracing\Tracer
 	 * @inheritdoc
 	 */
 	public function getActiveSpan() {
-		$this->logger->debug('getActiveSpan: Requesting the current active span');
+		$this->logger->debug('Tracer\getActiveSpan: Requesting the current active span');
 		$activeScope = $this->scopeManager->getActive();
 		if ( $activeScope == null ) {
-			$this->logger->debug('getActiveSpan: No active scope was present in the ScopeManager');
+			$this->logger->debug('Tracer\getActiveSpan: No active scope was present in the ScopeManager');
 			return null;
 		}
-		$this->logger->debug('getActiveSpan: An active scope is present');
+		$this->logger->debug('Tracer\getActiveSpan: An active scope is present');
 		return $activeScope->getSpan();
 	}
 
@@ -152,20 +152,20 @@ class Tracer implements OpenTracing\Tracer
 	 * @inheritdoc
 	 */
 	public function startActiveSpan( $operationName, $options = [] ) {
-		$this->logger->debug('startActiveSpan: Starting a new active span');
+		$this->logger->debug('Tracer\startActiveSpan: Starting a new active span');
 		if ( !$options instanceof StartSpanOptions ) {
 			$options = StartSpanOptions::create( $options );
 		}
 
 		if ( $this->hasParentInOptions( $options ) && $this->getActiveSpan() !== null ) {
 			$parent = $this->getActiveSpan()->getContext();
-			$this->logger->debug('startActiveSpan: New active span is a child');
+			$this->logger->debug('Tracer\startActiveSpan: New active span is a child');
 			$options->withParent( $parent );
 		}
 
 		$span = $this->startSpan( $operationName, $options );
 		$scope = $this->scopeManager->activate( $span, $options->shouldFinishSpanOnClose() );
-		$this->logger->debug('startActiveSpan: new span created and activated');
+		$this->logger->debug('Tracer\startActiveSpan: new span created and activated');
 		return $scope;
 	}
 
@@ -177,6 +177,7 @@ class Tracer implements OpenTracing\Tracer
      */
     public function startSpan($operationName, $options = [])
     {
+    	$this->logger->debug('Tracer\startSpan: Starting a new span');
     	if ( !$options instanceof StartSpanOptions ) {
     		$options = StartSpanOptions::create( $options );
 		}
