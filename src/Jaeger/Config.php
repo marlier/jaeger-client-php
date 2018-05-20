@@ -108,7 +108,7 @@ class Config
 
     private function getLogging(): bool
     {
-        return (bool)$this->config['logging'] ?? false;
+        return (array_key_exists('logging', $this->config)) ? (bool)$this->config['logging'] : false;
     }
 
     /**
