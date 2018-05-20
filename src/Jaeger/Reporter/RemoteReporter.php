@@ -41,7 +41,7 @@ class RemoteReporter implements ReporterInterface
 
     public function close()
     {
-    	$this->logger('Closing remote reporter');
+    	$this->logger->debug('Closing remote reporter');
         $this->transport->flush();
         $this->transport->close();
     }
