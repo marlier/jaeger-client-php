@@ -18,10 +18,10 @@ class Thrift {
 			'spans' => []
 		] );
 
-		#foreach ( $spans as $span ) {
-		#	$context = $span->getContext();
-		#	array_push($batch['spans'],
-		#		new Span([
+		foreach ( $spans as $span ) {
+			$context = $span->getContext();
+			array_push($batch['spans'],
+				new Span([
 		#			'trace_id' => $context->getTraceId(),
 		#			'name' => $span->getOperationName(),
 		#			'id' => null,
@@ -32,9 +32,9 @@ class Thrift {
 		#			'timestamp' => $span->getStartTime(),
 		#			'duration' => $span->getEndTime() - $span->getStartTime(),
 		#			# 'trace_id_high' => ????
-		#		])
-		#	);
-		#}
+				])
+			);
+		}
 		return $batch;
 
 	}
