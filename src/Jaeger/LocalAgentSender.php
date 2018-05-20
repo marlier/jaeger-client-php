@@ -12,7 +12,6 @@ use const OpenTracing\Tags\COMPONENT;
 use Psr\Log\LoggerInterface;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TBufferedTransport;
-use Thrift\Transport\TSocket;
 
 class LocalAgentSender
 {
@@ -33,6 +32,9 @@ class LocalAgentSender
 
     /** @var AgentClient */
     private $client;
+
+    /** @var LoggerInterface */
+    private $logger;
 
     public function __construct(string $host, int $port, int $batchSize = 10, LoggerInterface $logger = null)
     {
