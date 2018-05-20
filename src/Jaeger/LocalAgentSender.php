@@ -97,7 +97,7 @@ class LocalAgentSender
     {
     	#$this->logger->debug('localAgentSender\send: Calling emitZipkinBatch');
         #$this->client->emitZipkinBatch($spans);
-		$this->logger->debug('localAgentSender\send: Calling emitBatch');
+		$this->logger->debug('localAgentSender\send: Calling emitBatch: ' . $spans);
 		$this->client->emitBatch($spans);
         $this->logger->debug('localAgentSender\send: batch emitted');
     }
