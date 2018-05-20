@@ -312,15 +312,14 @@ class Tracer implements OpenTracing\Tracer
      */
     public function flush()
     {
-    	$this->logger->debug('Tracer\flush: Flush called, reporting traces');
+    	$this->logger->debug('Tracer\flush: Reporting traces');
         $this->reporter->close();
-		$this->logger->debug('Tracer\flush: Flush called, reporter has been closed');
+		$this->logger->debug('Tracer\flush: Reporter has been closed');
     }
 
     public function reportSpan(Span $span)
     {
-		$this->logger->debug('Tracer\reportSpan: Reporting a span');
-		$this->logger->debug($span);
+		$this->logger->debug('Tracer\reportSpan: Reporting a span: ' . $span);
         $this->reporter->reportSpan($span);
     }
 

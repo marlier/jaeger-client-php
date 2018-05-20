@@ -7,7 +7,9 @@ use Jaeger\ThriftGen\AnnotationType;
 use Jaeger\ThriftGen\BinaryAnnotation;
 use Jaeger\ThriftGen\Endpoint;
 use Jaeger\ThriftGen\Span;
+use Monolog\Logger;
 use const OpenTracing\Tags\COMPONENT;
+use Psr\Log\LoggerInterface;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TBufferedTransport;
 use Thrift\Transport\TSocket;
@@ -32,11 +34,12 @@ class LocalAgentSender
     /** @var AgentClient */
     private $client;
 
-    public function __construct(string $host, int $port, int $batchSize = 10)
+    public function __construct(string $host, int $port, int $batchSize = 10, LoggerInterface $logger = null)
     {
         $this->host = $host;
         $this->port = $port;
         $this->batchSize = $batchSize;
+        $this->logger = $logger ?? new Logger('jaeger_tracing\LocalAgentSender');
 
         $udp = new TUDPTransport($this->host, $this->port);
         $transport = new TBufferedTransport($udp, 4096, 4096);
@@ -71,7 +74,9 @@ class LocalAgentSender
             return 0;
         }
 
+        $this->logger->debug('Sending ' . $count . ' spans to Jaeger');
         $zipkinSpans = $this->makeZipkinBatch($this->spans);
+        $this->logger->debug($zipkinSpans);
 
         $this->send($zipkinSpans);
         $this->spans = [];
