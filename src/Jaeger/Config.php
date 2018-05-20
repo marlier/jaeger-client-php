@@ -37,7 +37,7 @@ class Config
     {
         $this->config = $config;
 
-        $this->serviceName = $config['service_name'] ?? $serviceName;
+        $this->serviceName = (array_key_exists('service_name', $config)) ? $config['service_name'] : $serviceName;
         if ($this->serviceName === null) {
             throw new Exception('service_name required in the config or param');
         }

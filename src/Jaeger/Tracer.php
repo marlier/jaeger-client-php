@@ -138,10 +138,13 @@ class Tracer implements OpenTracing\Tracer
 	 * @inheritdoc
 	 */
 	public function getActiveSpan() {
+		$this->logger->debug('Requesting the current active span');
 		$activeScope = $this->scopeManager->getActive();
 		if ( $activeScope == null ) {
+			$this->logger->debug('No active scope was present in the ScopeManager');
 			return null;
 		}
+		$this->logger->debug('An active scope is present');
 		return $activeScope->getSpan();
 	}
 
