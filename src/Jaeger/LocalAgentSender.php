@@ -2,6 +2,7 @@
 
 namespace Jaeger;
 
+use Jaeger\Thrift;
 use Jaeger\ThriftGen\AgentClient;
 use Jaeger\ThriftGen\AnnotationType;
 use Jaeger\ThriftGen\BinaryAnnotation;
@@ -36,7 +37,8 @@ class LocalAgentSender
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(string $host, int $port, int $batchSize = 10, LoggerInterface $logger = null)
+    public function __construct(string $host, int $port,
+								int $batchSize = 10, LoggerInterface $logger = null)
     {
         $this->host = $host;
         $this->port = $port;
@@ -77,9 +79,10 @@ class LocalAgentSender
         }
 
         $this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
-        $zipkinSpans = $this->makeZipkinBatch($this->spans);
+        $jaegerSpans = Thrift::makeJaegerBatch($this->spans, Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []));
+        #$zipkinSpans = $this->makeZipkinBatch($this->spans);
 
-        $this->send($zipkinSpans);
+        $this->send($jaegerSpans);
         $this->logger->debug('LocalAgentSender\flush: Sent spans');
         $this->spans = [];
 
@@ -90,9 +93,13 @@ class LocalAgentSender
     {
     }
 
-    private function send(array $spans)
+    private function send(Batch $spans)
     {
-        $this->client->emitZipkinBatch($spans);
+    	#$this->logger->debug('localAgentSender\send: Calling emitZipkinBatch');
+        #$this->client->emitZipkinBatch($spans);
+		$this->logger->debug('localAgentSender\send: Calling emitBatch');
+		$this->client->emitBatch(sspans);
+        $this->logger->debug('localAgentSender\send: batch emitted');
     }
 
     /**
