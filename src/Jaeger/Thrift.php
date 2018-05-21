@@ -23,9 +23,9 @@ class Thrift {
 				'timestamp' => $span->getStartTime(),
 				'duration' => $span->getEndTime() - $span->getStartTime()
 			];
-			if ( $span->getParentId() !== null ) {
+			/*if ( $span->getParentId() !== null ) {
 				$spanVars['parent_id'] = $span->getParentId();
-			}
+			}*/
 			array_push( $tSpans, new Span( $spanVars ) );
 		}
 		$batch = new Batch( [
