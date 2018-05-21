@@ -15,16 +15,17 @@ class Thrift {
 	public static function makeJaegerBatch($spans, Process $process): Batch {
 		$tSpans = [];
 		foreach ( $spans as $span ) {
-			$context = $span->getContext();
 			$spanVars = [
-				'trace_id' => $context->getTraceId(),
+				'trace_id' => $span->getContext()->getTraceId(),
 				'name' => $span->getOperationName(),
 				'debug' => false,
 				'timestamp' => $span->getStartTime(),
-				'duration' => $span->getEndTime() - $span->getStartTime()
+				'duration' => $span->getEndTime() - $span->getStartTime(),
+				'annotations' => [],
+				'binary_annotations' => []
 			];
-			if ( $context->getParentId() !== null ) {
-				$spanVars[ 'parent_id' ] = $context->getParentId();
+			if ( $span->getContext()->getParentId() !== null ) {
+				$spanVars[ 'parent_id' ] = $span->getContext()->getParentId();
 			}
 			array_push( $tSpans, new Span( $spanVars ) );
 		}
