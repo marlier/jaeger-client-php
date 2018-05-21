@@ -18,11 +18,11 @@ class Thrift {
 			$context = $span->getContext();
 			array_push( $tSpans, new Span( [
 				'trace_id' => $context->getTraceId(),
-				'name' => $span->getOperationName(),
-				'parent_id' => $span->getParentId(),
-				'debug' => false,
-				'timestamp' => $span->getStartTime(),
-				'duration' => $span->getEndTime() - $span->getStartTime()
+				#'name' => $span->getOperationName(),
+				#'parent_id' => $span->getParentId(),
+				#'debug' => false,
+				#'timestamp' => $span->getStartTime(),
+				#'duration' => $span->getEndTime() - $span->getStartTime()
 			] ) );
 		}
 		$batch = new Batch( [
