@@ -22,7 +22,7 @@ class Thrift {
 				#'parent_id' => $span->getParentId(),
 				'debug' => false,
 				'timestamp' => $span->getStartTime(),
-				#'duration' => $span->getEndTime() - $span->getStartTime()
+				'duration' => $span->getEndTime() - $span->getStartTime()
 			] ) );
 		}
 		$batch = new Batch( [
