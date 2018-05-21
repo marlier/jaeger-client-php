@@ -22,8 +22,8 @@ class Thrift {
 				'debug' => $span->isDebug(),
 				'timestamp' => $span->getStartTime(),
 				'duration' => $span->getEndTime() - $span->getStartTime(),
-				'annotations' => [],
-				'binary_annotations' => []
+				'annotations' => array(),
+				'binary_annotations' => $span->getTags()
 			];
 			if ( $span->getContext()->getParentId() !== null ) {
 				$spanVars[ 'parent_id' ] = $span->getContext()->getParentId();

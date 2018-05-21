@@ -99,7 +99,7 @@ class LocalAgentSender
 	/**
 	 * @param Batch $spans
 	 */
-	private function send( Batch $spans)
+	private function send( Batch $spans )
     {
 		$this->logger->debug('localAgentSender\send: Calling emitBatch');
 		$this->client->emitBatch($spans);
