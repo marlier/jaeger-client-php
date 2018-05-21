@@ -101,7 +101,7 @@ class LocalAgentSender
 	 */
 	private function send( Batch $spans)
     {
-		$this->logger->debug('localAgentSender\send: Calling emitBatch: ' . $spans);
+		$this->logger->debug('localAgentSender\send: Calling emitBatch');
 		$this->client->emitBatch($spans);
         $this->logger->debug('localAgentSender\send: batch emitted');
     }
