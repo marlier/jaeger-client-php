@@ -48,7 +48,6 @@ class Config
 //        );
 
         $this->logger = $logger ?? new Logger('jaeger_tracing');
-        $this->logger->debug(print_r($config, true));
     }
 
     /** @return Tracer|null */
@@ -146,7 +145,7 @@ class Config
 
     private function getLocalAgentSender(): LocalAgentSender
     {
-        $this->logger->info('Config\getLocalAgentSender: Initializing Jaeger Tracer with UDP reporter to ' .
+        $this->logger->debug('Config\getLocalAgentSender: Initializing Jaeger Tracer with UDP reporter to ' .
 							$this->getLocalAgentReportingHost() . ':' . $this->getLocalAgentReportingPort());
         return new LocalAgentSender(
             $this->getLocalAgentReportingHost(),
@@ -163,7 +162,6 @@ class Config
 
     private function getLocalAgentReportingHost(): string
     {
-
         return ( array_key_exists( 'reporting_host', $this->getLocalAgentGroup() ) )
 			? $this->getLocalAgentGroup()['reporting_host']
 			: DEFAULT_REPORTING_HOST;
@@ -177,7 +175,6 @@ class Config
 
     private function getLocalAgentReportingPort(): int
     {
-    	$this->logger->debug(print_r($this->getLocalAgentGroup(), true));
         return ( array_key_exists( 'reporting_port', $this->getLocalAgentGroup() ) )
 			? $this->getLocalAgentGroup()['reporting_port']
 			: DEFAULT_REPORTING_PORT;
