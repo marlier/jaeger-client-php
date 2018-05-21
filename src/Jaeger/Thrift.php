@@ -19,7 +19,7 @@ class Thrift {
 			array_push( $tSpans, new Span( [
 				'trace_id' => $context->getTraceId(),
 				'name' => $span->getOperationName(),
-				#'parent_id' => $span->getParentId(),
+				'parent_id' => $span->getParentId(),
 				#'debug' => false,
 				#'timestamp' => $span->getStartTime(),
 				#'duration' => $span->getEndTime() - $span->getStartTime()
