@@ -157,21 +157,27 @@ class Config
 
     private function getLocalAgentGroup()
     {
-        return $this->config['local_agent'] ?? null;
+        return ( array_key_exists( 'local_agent', $this->config ) ) ? $this->config['local_agent'] : [];
     }
 
     private function getLocalAgentReportingHost(): string
     {
-        return $this->getLocalAgentGroup()['reporting_host'] ?? DEFAULT_REPORTING_HOST;
+
+        return ( array_key_exists( 'reporting_host', $this->getLocalAgentGroup() ) )
+			? $this->getLocalAgentGroup()['reporting_host']
+			: DEFAULT_REPORTING_HOST;
     }
 
-    private function getLocalAgentSamplingPort(): int
-    {
-        return $this->getLocalAgentGroup()['sampling_port'] ?? DEFAULT_SAMPLING_PORT;
-    }
+    private function getLocalAgentSamplingPort(): int {
+		return ( array_key_exists( 'sampling_port', $this->getLocalAgentGroup() ) )
+			? $this->getLocalAgentGroup()[ 'sampling_port' ]
+			: DEFAULT_SAMPLING_PORT;
+	}
 
     private function getLocalAgentReportingPort(): int
     {
-        return $this->getLocalAgentGroup()['reporting_port'] ?? DEFAULT_REPORTING_PORT;
+        return ( array_key_exists( 'reporting_port', $this->getLocalAgentGroup() ) )
+			? $this->getLocalAgentGroup()['reporting_port']
+			: DEFAULT_REPORTING_PORT;
     }
 }
