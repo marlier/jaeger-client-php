@@ -14,11 +14,12 @@ class Thrift {
 
 	public static function makeJaegerBatch($spans, Process $process): Batch {
 		$tSpans = [];
+
 		foreach ( $spans as $span ) {
 			$spanVars = [
 				'trace_id' => $span->getContext()->getTraceId(),
 				'name' => $span->getOperationName(),
-				'debug' => false,
+				'debug' => $span->isDebug(),
 				'timestamp' => $span->getStartTime(),
 				'duration' => $span->getEndTime() - $span->getStartTime(),
 				'annotations' => [],
@@ -34,25 +35,7 @@ class Thrift {
 			'spans' => $tSpans
 		] );
 
-		#foreach ( $spans as $span ) {
-		#	$context = $span->getContext();
-		#	array_push($batch['spans'],
-		#		new Span([
-		#			'trace_id' => $context->getTraceId(),
-		#			'name' => $span->getOperationName(),
-		#			'id' => null,
-		#			'parent_id' => $span->getParentId(),
-		#			'annotations' => [],
-		#			'binary_annotations' => [],
-		#			'debug' => false,
-		#			'timestamp' => $span->getStartTime(),
-		#			'duration' => $span->getEndTime() - $span->getStartTime(),
-		#			# 'trace_id_high' => ????
-		#		])
-		#	);
-		#}
 		return $batch;
-
 	}
 
 	public static function makeProcess(string $serviceName, array $tags): Process {
