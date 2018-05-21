@@ -177,6 +177,7 @@ class Config
 
     private function getLocalAgentReportingPort(): int
     {
+    	$this->logger->debug(print_r($this->getLocalAgentGroup(), true));
         return ( array_key_exists( 'reporting_port', $this->getLocalAgentGroup() ) )
 			? $this->getLocalAgentGroup()['reporting_port']
 			: DEFAULT_REPORTING_PORT;
