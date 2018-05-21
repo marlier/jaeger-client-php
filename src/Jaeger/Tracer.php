@@ -158,8 +158,8 @@ class Tracer implements OpenTracing\Tracer
 		}
 
 		if ( $this->hasParentInOptions( $options ) && $this->getActiveSpan() !== null ) {
-			$parent = $this->getActiveSpan()->getContext();
-			$this->logger->debug('Tracer\startActiveSpan: New active span is a child');
+			$parent = $this->getActiveSpan();
+			$this->logger->debug('Tracer\startActiveSpan: New active span is a child of ' . $parent->getContext()->getParentId());
 			$options->withParent( $parent );
 		}
 
