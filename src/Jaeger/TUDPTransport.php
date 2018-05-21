@@ -2,6 +2,7 @@
 
 namespace Jaeger;
 
+use Psr\Log\LoggerInterface;
 use Thrift\Exception\TTransportException;
 use Thrift\Transport\TTransport;
 
@@ -11,10 +12,12 @@ class TUDPTransport extends TTransport
     private $host;
     private $port;
 
-    public function __construct($host, $port)
+    public function __construct($host, $port, LoggerInterface $logger = null)
     {
+    	$this->logger = $logger ?? new Logger('jaeger_tracing\TUDPTransport');
         $this->host = $host;
         $this->port = $port;
+        $this->logger->debug('TUDPTransport\__construct: Creating a UDP socket');
         $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
     }
 
@@ -34,8 +37,9 @@ class TUDPTransport extends TTransport
      * @throws TTransportException if cannot open
      */
     public function open()
-    {
+	{
         $ok = socket_connect($this->socket, $this->host, $this->port);
+        $this->logger->debug('TUDPTransport\open: Connected socket to ' . $this->host . ':' . $this->port);
         if ($ok === FALSE) {
             throw new TTransportException('socket_connect failed');
         }
@@ -72,10 +76,11 @@ class TUDPTransport extends TTransport
         if (!$this->isOpen()) {
             throw new TTransportException('transport is closed');
         }
-
+		$this->logger->debug('TUDPTransport\write: Writing a buffer to UDP Socket');
         $ok = socket_write($this->socket, $buf);
         if ($ok === FALSE) {
             throw new TTransportException('socket_write failed');
         }
+        $this->logger->debug('TUDPTransport\write: Wrote buffer to UDP');
     }
 }

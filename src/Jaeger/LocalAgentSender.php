@@ -45,7 +45,7 @@ class LocalAgentSender
         $this->batchSize = $batchSize;
         $this->logger = $logger ?? new Logger('jaeger_tracing\LocalAgentSender');
 
-        $udp = new TUDPTransport($this->host, $this->port);
+        $udp = new TUDPTransport($this->host, $this->port, $this->logger);
         $transport = new TBufferedTransport($udp, 4096, 4096);
         $transport->open();
         $protocol = new TCompactProtocol($transport);
