@@ -21,12 +21,11 @@ class Thrift {
 				'name' => $span->getOperationName(),
 				'debug' => false,
 				'timestamp' => $span->getStartTime(),
-				'duration' => $span->getEndTime() - $span->getStartTime(),
-				'parent_id' => $context->getParentId()
+				'duration' => $span->getEndTime() - $span->getStartTime()
 			];
-			#if ( $context->getParentId() !== null ) {
-			#	$spanVars[ 'parent_id' ] = $context->getParentId();
-			#}
+			if ( $context->getParentId() !== null ) {
+				$spanVars[ 'parent_id' ] = $context->getParentId();
+			}
 			array_push( $tSpans, new Span( $spanVars ) );
 		}
 		$batch = new Batch( [
