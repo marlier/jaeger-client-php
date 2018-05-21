@@ -48,6 +48,7 @@ class Config
 //        );
 
         $this->logger = $logger ?? new Logger('jaeger_tracing');
+        $this->logger->debug(print_r($config, true));
     }
 
     /** @return Tracer|null */
