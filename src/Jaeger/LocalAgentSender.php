@@ -71,12 +71,11 @@ class LocalAgentSender
             return 0;
         }
 
-        $this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
-        $process = Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []);
-		$this->logger->debug('localAgentSender\flush: Process thrift object has been created');
-
         /* Jaeger */
 		/*
+		$this->logger->debug('LocalAgentSender\flush: Sending ' . $count . ' spans to Jaeger');
+        $process = Thrift::makeProcess($this->spans[0]->getTracer()->getServiceName(), []);
+		$this->logger->debug('localAgentSender\flush: Process thrift object has been created');
         $jaegerSpans = Thrift::makeJaegerBatch($this->spans, $process);
 		$this->logger->debug('LocalAgentSender\flush: Jaeger batch created');
         $this->send($jaegerSpans);
