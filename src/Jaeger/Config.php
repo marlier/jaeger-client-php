@@ -146,10 +146,10 @@ class Config
 
     private function getLocalAgentSender(): LocalAgentSender
     {
-        $this->logger->info('Config\getLocalAgentSender: Initializing Jaeger Tracer with UDP reporter');
+        $this->logger->info('Config\getLocalAgentSender: Initializing Jaeger Tracer with UDP reporter to ' .
+							$this->getLocalAgentReportingHost() . ':' . $this->getLocalAgentReportingPort());
         return new LocalAgentSender(
             $this->getLocalAgentReportingHost(),
-//            $this->getLocalAgentSamplingPort(),
             $this->getLocalAgentReportingPort(),
 			$this->getBatchSize(),
 			$this->logger
