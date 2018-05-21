@@ -4,6 +4,7 @@ namespace Jaeger;
 
 use Jaeger\ThriftGen\AgentClient;
 use Jaeger\ThriftGen\AnnotationType;
+use Jaeger\ThriftGen\Batch;
 use Jaeger\ThriftGen\BinaryAnnotation;
 use Jaeger\ThriftGen\Endpoint;
 use Jaeger\ThriftGen\Span;
@@ -82,7 +83,6 @@ class LocalAgentSender
 
         $this->logger->debug('localAgentSender\flush: Process thrift object has been created');
         $jaegerSpans = Thrift::makeJaegerBatch($this->spans, $process);
-        #$zipkinSpans = $this->makeZipkinBatch($this->spans);
 		$this->logger->debug('LocalAgentSender\flush: Jaeger batch created');
 
         $this->send($jaegerSpans);
@@ -96,10 +96,11 @@ class LocalAgentSender
     {
     }
 
-    private function send(Batch $spans)
+	/**
+	 * @param Batch $spans
+	 */
+	private function send( Batch $spans)
     {
-    	#$this->logger->debug('localAgentSender\send: Calling emitZipkinBatch');
-        #$this->client->emitZipkinBatch($spans);
 		$this->logger->debug('localAgentSender\send: Calling emitBatch: ' . $spans);
 		$this->client->emitBatch($spans);
         $this->logger->debug('localAgentSender\send: batch emitted');
