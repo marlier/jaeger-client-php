@@ -16,14 +16,17 @@ class Thrift {
 		$tSpans = [];
 		foreach ( $spans as $span ) {
 			$context = $span->getContext();
-			array_push( $tSpans, new Span( [
+			$spanVars = [
 				'trace_id' => $context->getTraceId(),
 				'name' => $span->getOperationName(),
-				#'parent_id' => $span->getParentId(),
 				'debug' => false,
 				'timestamp' => $span->getStartTime(),
 				'duration' => $span->getEndTime() - $span->getStartTime()
-			] ) );
+			];
+			if ( $span->getParentId() !== null ) {
+				$spanVars['parent_id'] = $span->getParentId();
+			}
+			array_push( $tSpans, new Span( $spanVars ) );
 		}
 		$batch = new Batch( [
 			'process' => $process,
